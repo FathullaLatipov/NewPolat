@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-(6f)q9&+mk#%%r&!*ar6w-_f6rkx7$=0lbzgy*noey6w%&)+tr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["147.78.66.1631", "*"]
+ALLOWED_HOSTS = ["147.78.66.163", "*"]
 CSRF_TRUSTED_ORIGINS = ["http://147.78.66.163", "https://147.78.66.163", "http://127.0.0.1:8000", ]
 
 
@@ -79,7 +79,9 @@ CORS_ORIGIN_WHITELIST = (
     'https://makler1.herokuapp.com',
     'https://84.252.75.67',
     'https://api.makleruz.uz',
-    'https://back.protools.uz/'
+    'https://back2.protools.uz/'
+    'https://147.78.66.163'
+    'http://147.78.66.163'
 )
 
 ROOT_URLCONF = 'loyiha.urls'
