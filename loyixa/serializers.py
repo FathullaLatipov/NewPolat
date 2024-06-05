@@ -7,8 +7,21 @@ class ZapchastSerializer(serializers.ModelSerializer):
         model = Zapchast
         fields = ('id', 'name_uz', 'name_ru', 'image')
 
+    def get_img_url(self, obj):
+        return self.context['request'].build_absolute_uri(obj.image.url)
+
 
 class MaxsulotSerializer(serializers.ModelSerializer):
+    img_url = serializers.SerializerMethodField()
+    brand_img_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Maxsulot
-        fields = ('zapchast', 'name_uz', 'name_ru', 'description', 'description_ru', 'price', 'brand')
+        fields = ('zapchast', 'name_uz', 'name_ru', 'description', 'description_ru', 'price', 'brand',
+                  'brand_image', 'image', 'status', 'img_url', 'brand_img_url')
+
+    def get_img_url(self, obj):
+        return self.context['request'].build_absolute_uri(obj.image.url)
+
+    def get_brand_img_url(self, obj):
+        return self.context['request'].build_absolute_uri(obj.brand_image.url)

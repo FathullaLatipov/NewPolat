@@ -5,7 +5,7 @@ from django.db import models
 class Zapchast(models.Model):
     name_uz = models.CharField(max_length=250)
     name_ru = models.CharField(max_length=250)
-    image = models.ImageField(upload_to='')
+    image = models.FileField(upload_to='zapchast_image')
     status = models.BooleanField(default="False")
 
     def __str__(self):
@@ -20,8 +20,8 @@ class Maxsulot(models.Model):
     description_ru = models.TextField()
     price = models.CharField(max_length=250)
     brand = models.CharField(max_length=100)
-    brand_image = models.TextField(null=True)
-    image = models.ImageField(upload_to='images', null=True)
+    brand_image = models.FileField(upload_to='brand_images', null=True)
+    image = models.FileField(upload_to='images', null=True)
     status = models.TextField(default='False')
 
     def __str__(self):
