@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Zapchast, Maxsulot
+from .models import Zapchast, Maxsulot, Order
 
 
 class ZapchastSerializer(serializers.ModelSerializer):
@@ -25,3 +25,17 @@ class MaxsulotSerializer(serializers.ModelSerializer):
 
     def get_brand_img_url(self, obj):
         return self.context['request'].build_absolute_uri(obj.brand_image.url)
+
+
+class Maxsulot2Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Maxsulot
+        fields = '__all__'
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    maxsulot = Maxsulot2Serializer()
+
+    class Meta:
+        model = Order
+        fields = '__all__'

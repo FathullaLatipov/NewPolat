@@ -186,7 +186,7 @@ CORS_ORIGIN_WHITELIST = (
     'https://makler1.herokuapp.com',
     'https://84.252.75.67',
     'https://api.makleruz.uz',
-    'https://back2.protools.uz/',
+    'https://back2.protools.uz',
     'https://147.78.66.163',
     'http://147.78.66.163'
 )

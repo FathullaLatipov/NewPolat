@@ -6,6 +6,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from loyixa.serializers import OrderSerializer, Maxsulot2Serializer
+
 from loyixa.models import Zapchast, Maxsulot, Order
 
 
@@ -145,7 +147,19 @@ def query_to_data(query: QuerySet, request, to_exel=False, to_json=False):
     if to_exel:
         return list_to_exel(query)
 
-    data["data"] = list(query)
+    data["data"] = []
+    query = query[(page - 1) * per_page:page * per_page]
+
+    include = request.GET.get('include', '').split(',')
+
+    for obj in query:
+        obj_data = obj
+        for field in include:
+            if field in all_foreign_keys:
+                related_obj = getattr(obj, field, None)
+                if related_obj:
+                    obj_data[field] = related_obj
+        data["data"].append(obj_data)
 
     if to_json:
         return data
@@ -371,5 +385,59 @@ class OrdersView(APIView):
             return JsonResponse({"status": "Error", "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse({"status": "Success", "message": "Order deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+
+class OrderListCreate(APIView):
+    def get(self, request):
+        orders = Order.objects.all()
+        serializer = OrderSerializer(orders, many=True)
+
+        # Pagination and metadata
+        page = int(request.GET.get('page', 1))
+        per_page = int(request.GET.get('per_page', 10))
+        total_count = orders.count()
+        last_page = (total_count + per_page - 1) // per_page
+        start = (page - 1) * per_page
+        end = start + per_page
+        orders_paginated = orders[start:end]
+        serializer = OrderSerializer(orders_paginated, many=True)
+
+        data = {
+            "all_data": total_count,
+            "page": page,
+            "per_page": per_page,
+            "data": serializer.data,
+            "last_page": last_page,
+            "next_page_url": f"?page={page + 1}&per_page={per_page}" if page < last_page else "",
+            "prev_page_url": f"?page={page - 1}&per_page={per_page}" if page > 1 else "",
+            "foreignKeys": ["maxsulot"],
+            "from": start + 1,
+            "to": end if end < total_count else total_count,
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        data = request.data
+        try:
+            maxsulot_data = data.pop('maxsulot')
+            maxsulot_serializer = Maxsulot2Serializer(data=maxsulot_data)
+            if maxsulot_serializer.is_valid():
+                maxsulot = maxsulot_serializer.save()
+            else:
+                return Response(maxsulot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            order_data = {
+                'name': data.get('name'),
+                'phone_number': data.get('phone_number'),
+                'maxsulot': maxsulot.id
+            }
+            order_serializer = OrderSerializer(data=order_data)
+            if order_serializer.is_valid():
+                order_serializer.save()
+                return Response(order_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(order_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"status": "Error", "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
