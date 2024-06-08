@@ -147,19 +147,7 @@ def query_to_data(query: QuerySet, request, to_exel=False, to_json=False):
     if to_exel:
         return list_to_exel(query)
 
-    data["data"] = []
-    query = query[(page - 1) * per_page:page * per_page]
-
-    include = request.GET.get('include', '').split(',')
-
-    for obj in query:
-        obj_data = obj
-        for field in include:
-            if field in all_foreign_keys:
-                related_obj = getattr(obj, field, None)
-                if related_obj:
-                    obj_data[field] = related_obj
-        data["data"].append(obj_data)
+    data["data"] = list(query)
 
     if to_json:
         return data
